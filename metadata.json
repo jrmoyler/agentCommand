@@ -1,0 +1,8 @@
+{
+  "name": "AgentCommand",
+  "description": "A high-density Swiss-style orchestration hub for managing autonomous AI agent swarms, featuring real-time health monitoring and Gemini-powered intelligence.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
