@@ -7,12 +7,11 @@ import { getAgentAnalysis, speakAgentStatus, generateAgentReport } from '../serv
 interface AgentDetailsPanelProps {
   agent: Agent | null;
   isOpen: boolean;
-  isNightMode: boolean;
   onClose: () => void;
   onStatusChange: (status: AgentStatus) => void;
 }
 
-const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agent, isOpen, isNightMode, onClose, onStatusChange }) => {
+const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agent, isOpen, onClose, onStatusChange }) => {
   const [analysis, setAnalysis] = useState<string>('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [activeReport, setActiveReport] = useState<any>(null);
@@ -49,11 +48,11 @@ const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agent, isOpen, is
     setIsAnalyzing(false);
   }
 
-  const bgClass = isNightMode ? 'bg-[#121210]' : 'bg-[#FFFFFF]';
-  const borderCol = isNightMode ? 'border-[#333333]' : 'border-[#1A1A1A]';
-  const innerBg = isNightMode ? 'bg-[#1A1A1A]' : 'bg-[#F4F4F0]';
-  const textColor = isNightMode ? 'text-[#E5E5E5]' : 'text-[#1A1A1A]';
-  const mutedText = isNightMode ? 'text-[#666666]' : 'text-[#999999]';
+  const bgClass = 'bg-[#121210]';
+  const borderCol = 'border-[#333333]';
+  const innerBg = 'bg-[#1A1A1A]';
+  const textColor = 'text-[#E5E5E5]';
+  const mutedText = 'text-[#666666]';
 
   return (
     <div 
@@ -67,8 +66,8 @@ const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agent, isOpen, is
             <span className={`text-xs font-mono ${mutedText}`}>{agent.id}</span>
             <h2 className={`text-4xl font-black tracking-tighter uppercase ${textColor}`}>{agent.name}</h2>
           </div>
-          <button onClick={onClose} className={`p-2 ${isNightMode ? 'hover:bg-[#333]' : 'hover:bg-[#F4F4F0]'} transition-colors`}>
-            <X size={24} color={isNightMode ? 'white' : 'black'} />
+          <button onClick={onClose} className={`p-2 hover:bg-[#333] transition-colors`}>
+            <X size={24} color="white" />
           </button>
         </div>
 
@@ -108,7 +107,7 @@ const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agent, isOpen, is
               </button>
               <button 
                 onClick={() => onStatusChange('idle')}
-                className={`flex-1 border-2 ${isNightMode ? 'border-[#333] text-white' : 'border-[#1A1A1A] text-[#1A1A1A]'} py-3 flex flex-col items-center justify-center gap-1 hover:bg-[#F4F4F033] transition-colors`}
+                className={`flex-1 border-2 border-[#333] text-white py-3 flex flex-col items-center justify-center gap-1 hover:bg-[#333] transition-colors`}
               >
                 <RotateCcw size={16} />
                 <span className="text-[9px] font-bold uppercase">Reset</span>
@@ -121,13 +120,13 @@ const AgentDetailsPanel: React.FC<AgentDetailsPanelProps> = ({ agent, isOpen, is
             <p className={`text-sm font-medium ${textColor}`}>{agent.specialization}</p>
           </section>
 
-          <section className="pt-4 border-t ${borderCol}">
+          <section className="pt-4 border-t border-[#333]">
             <h4 className={`text-[10px] font-bold tracking-[0.2em] ${mutedText} mb-4 uppercase`}>Intelligence Integration</h4>
             <div className="flex flex-wrap gap-2">
               <button onClick={handleAnalyze} disabled={isAnalyzing} className="flex-1 bg-[#1A1A1A] text-white px-4 py-3 flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-widest hover:bg-[#333333] transition-colors disabled:opacity-50 border border-white/10">
                 <BrainCircuit size={16} /> {isAnalyzing ? '...' : 'Analyze'}
               </button>
-              <button onClick={handleSpeak} className={`flex-1 border-2 ${isNightMode ? 'border-white text-white' : 'border-[#1A1A1A] text-[#1A1A1A]'} px-4 py-3 flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-widest hover:bg-[#F4F4F033] transition-colors`}>
+              <button onClick={handleSpeak} className={`flex-1 border-2 border-white text-white px-4 py-3 flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-widest hover:bg-[#333] transition-colors`}>
                 <Volume2 size={16} /> Brief
               </button>
             </div>

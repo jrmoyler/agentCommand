@@ -1,15 +1,15 @@
+
 import React from 'react';
 import { Agent, AgentStatus } from '../types';
 import { Play, Square, RotateCcw } from 'lucide-react';
 
 interface AgentCardProps {
   agent: Agent;
-  isNightMode: boolean;
   onClick: (agent: Agent) => void;
   onAction: (status: AgentStatus) => void;
 }
 
-const AgentCard: React.FC<AgentCardProps> = ({ agent, isNightMode, onClick, onAction }) => {
+const AgentCard: React.FC<AgentCardProps> = ({ agent, onClick, onAction }) => {
   const statusColors = {
     idle: 'bg-green-500',
     busy: 'bg-[#FF4400]',
@@ -17,11 +17,11 @@ const AgentCard: React.FC<AgentCardProps> = ({ agent, isNightMode, onClick, onAc
     offline: 'bg-gray-400'
   };
 
-  const bgClass = isNightMode ? 'bg-[#121210]' : 'bg-[#FFFFFF]';
-  const borderClass = isNightMode ? 'border-[#333333]' : 'border-[#E5E5E5]';
-  const hoverBorder = isNightMode ? 'hover:border-[#FF4400]' : 'hover:border-[#1A1A1A]';
-  const textColor = isNightMode ? 'text-[#E5E5E5]' : 'text-[#1A1A1A]';
-  const mutedText = isNightMode ? 'text-[#888888]' : 'text-[#999999]';
+  const bgClass = 'bg-[#121210]';
+  const borderClass = 'border-[#333333]';
+  const hoverBorder = 'hover:border-[#FF4400]';
+  const textColor = 'text-[#E5E5E5]';
+  const mutedText = 'text-[#888888]';
 
   const handleAction = (e: React.MouseEvent, status: AgentStatus) => {
     e.stopPropagation();
@@ -41,10 +41,10 @@ const AgentCard: React.FC<AgentCardProps> = ({ agent, isNightMode, onClick, onAc
         <h3 className={`text-lg font-black tracking-tighter leading-none mb-1 group-hover:text-[#0044FF] transition-colors ${textColor}`}>
           {agent.name}
         </h3>
-        <p className={`text-[10px] font-bold uppercase tracking-wider ${isNightMode ? 'text-[#666666]' : 'text-[#666666]'}`}>{agent.role}</p>
+        <p className={`text-[10px] font-bold uppercase tracking-wider text-[#666666]`}>{agent.role}</p>
       </div>
       
-      <div className="mt-4 pt-4 border-t border-transparent group-hover:border-[#F4F4F033] flex justify-between items-end relative z-10">
+      <div className="mt-4 pt-4 border-t border-transparent group-hover:border-[#333333] flex justify-between items-end relative z-10">
         <div className="flex flex-col">
           <span className={`text-[9px] ${mutedText} font-mono`}>UPTIME</span>
           <span className={`text-xs font-mono ${textColor}`}>{agent.uptime}</span>
@@ -54,23 +54,21 @@ const AgentCard: React.FC<AgentCardProps> = ({ agent, isNightMode, onClick, onAc
         <div className="absolute right-0 bottom-0 flex gap-1 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-200">
           <button 
             onClick={(e) => handleAction(e, 'busy')}
-            className={`p-1.5 ${isNightMode ? 'bg-[#333]' : 'bg-[#F4F4F0]'} hover:bg-[#0044FF] hover:text-white transition-colors border ${borderClass}`}
+            className={`p-1.5 bg-[#333] hover:bg-[#0044FF] hover:text-white transition-colors border ${borderClass}`}
             title="Start Agent"
           >
             <Play size={12} fill="currentColor" />
           </button>
           <button 
             onClick={(e) => handleAction(e, 'idle')}
-            // Fix: Changed 'borderCol' to 'borderClass' to resolve undefined variable error
-            className={`p-1.5 ${isNightMode ? 'bg-[#333]' : 'bg-[#F4F4F0]'} hover:bg-[#1A1A1A] hover:text-white transition-colors border ${borderClass}`}
+            className={`p-1.5 bg-[#333] hover:bg-[#1A1A1A] hover:text-white transition-colors border ${borderClass}`}
             title="Stop Agent"
           >
             <Square size={12} fill="currentColor" />
           </button>
           <button 
             onClick={(e) => handleAction(e, 'idle')}
-            // Fix: Changed 'borderCol' to 'borderClass' to resolve undefined variable error
-            className={`p-1.5 ${isNightMode ? 'bg-[#333]' : 'bg-[#F4F4F0]'} hover:bg-[#FF4400] hover:text-white transition-colors border ${borderClass}`}
+            className={`p-1.5 bg-[#333] hover:bg-[#FF4400] hover:text-white transition-colors border ${borderClass}`}
             title="Reset Agent"
           >
             <RotateCcw size={12} />

@@ -1,11 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-interface SwarmHealthProps {
-  isNightMode?: boolean;
-}
-
-const SwarmHealth: React.FC<SwarmHealthProps> = ({ isNightMode }) => {
+const SwarmHealth: React.FC = () => {
   const [tokens, setTokens] = useState(1240500);
   const [errorRate, setErrorRate] = useState(0.002);
   const [activeCount, setActiveCount] = useState(15);
@@ -33,10 +29,10 @@ const SwarmHealth: React.FC<SwarmHealthProps> = ({ isNightMode }) => {
     return () => clearInterval(interval);
   }, []);
 
-  const surfaceBg = isNightMode ? 'bg-[#121210]' : 'bg-[#FFFFFF]';
-  const borderCol = isNightMode ? 'border-[#333333]' : 'border-[#E5E5E5]';
-  const textColor = isNightMode ? 'text-[#E5E5E5]' : 'text-[#1A1A1A]';
-  const mutedText = isNightMode ? 'text-[#666666]' : 'text-[#999999]';
+  const surfaceBg = 'bg-[#121210]';
+  const borderCol = 'border-[#333333]';
+  const textColor = 'text-[#E5E5E5]';
+  const mutedText = 'text-[#666666]';
 
   const stats = [
     { label: 'ACTIVE AGENTS', value: `${activeCount}/15`, color: textColor },

@@ -3,11 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { MOCK_LOGS } from '../constants';
 import { LogEntry } from '../types';
 
-interface LiveFeedProps {
-  isNightMode?: boolean;
-}
-
-const LiveFeed: React.FC<LiveFeedProps> = ({ isNightMode }) => {
+const LiveFeed: React.FC = () => {
   const [logs, setLogs] = useState<LogEntry[]>(MOCK_LOGS);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -43,8 +39,8 @@ const LiveFeed: React.FC<LiveFeedProps> = ({ isNightMode }) => {
     return () => clearInterval(interval);
   }, []);
 
-  const bgClass = isNightMode ? 'bg-[#0A0A0A]' : 'bg-[#1A1A1A]';
-  const borderColor = isNightMode ? 'border-[#333333]' : 'border-[#E5E5E5]';
+  const bgClass = 'bg-[#0A0A0A]';
+  const borderColor = 'border-[#333333]';
 
   return (
     <div className={`${bgClass} p-6 h-full flex flex-col border ${borderColor} transition-colors duration-300 overflow-hidden`}>

@@ -17,9 +17,6 @@ const App: React.FC = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'tokens' | 'uptime'>('name');
-  const [isNightMode, setIsNightMode] = useState(() => {
-    return localStorage.getItem('agentCommand_theme') === 'dark';
-  });
   
   // Gemini Intelligence state
   const [thinkQuery, setThinkQuery] = useState('');
@@ -27,13 +24,9 @@ const App: React.FC = () => {
   const [isThinking, setIsThinking] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('agentCommand_theme', isNightMode ? 'dark' : 'light');
-    if (isNightMode) {
-      document.body.style.backgroundColor = '#1A1A1A';
-    } else {
-      document.body.style.backgroundColor = '#F4F4F0';
-    }
-  }, [isNightMode]);
+    // Enforce dark mode on body
+    document.body.style.backgroundColor = '#1A1A1A';
+  }, []);
 
   const selectedAgent = useMemo(() => 
     agents.find(a => a.id === selectedAgentId) || null
@@ -77,15 +70,13 @@ const App: React.FC = () => {
     }
   };
 
-  const toggleNightMode = () => setIsNightMode(!isNightMode);
-
-  // Strict Swiss Theme Colors
-  const themeBg = isNightMode ? 'bg-[#1A1A1A]' : 'bg-[#F4F4F0]';
-  const themeText = isNightMode ? 'text-[#E5E5E5]' : 'text-[#1A1A1A]';
-  const surfaceBg = isNightMode ? 'bg-[#121210]' : 'bg-[#FFFFFF]';
-  const borderCol = isNightMode ? 'border-[#333333]' : 'border-[#E5E5E5]';
-  const mutedText = isNightMode ? 'text-[#888888]' : 'text-[#999999]';
-  const inputBg = isNightMode ? 'bg-[#121210]' : 'bg-white';
+  // Permanent Swiss Dark Theme Colors
+  const themeBg = 'bg-[#1A1A1A]';
+  const themeText = 'text-[#E5E5E5]';
+  const surfaceBg = 'bg-[#121210]';
+  const borderCol = 'border-[#333333]';
+  const mutedText = 'text-[#888888]';
+  const inputBg = 'bg-[#121210]';
 
   const renderContent = () => {
     switch (activeTab) {
@@ -93,11 +84,11 @@ const App: React.FC = () => {
         return (
           <div className="grid grid-cols-12 gap-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="col-span-12">
-              <SwarmHealth isNightMode={isNightMode} />
+              <SwarmHealth />
             </div>
 
             <div className="col-span-12 lg:col-span-8">
-              <LiveFeed isNightMode={isNightMode} />
+              <LiveFeed />
             </div>
             
             <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
@@ -131,7 +122,6 @@ const App: React.FC = () => {
                   <AgentCard 
                     key={agent.id} 
                     agent={agent} 
-                    isNightMode={isNightMode}
                     onClick={handleAgentClick} 
                     onAction={(status) => updateAgentStatus(agent.id, status)}
                   />
@@ -144,7 +134,7 @@ const App: React.FC = () => {
       case 'agents':
         return (
           <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b-4 border-[#1A1A1A] dark:border-white pb-6 gap-6">
+            <div className={`flex flex-col md:flex-row justify-between items-start md:items-end border-b-4 border-white pb-6 gap-6`}>
               <div>
                 <h2 className="text-6xl font-black tracking-tighter uppercase leading-none">Swarm Registry</h2>
                 <p className={`text-sm font-mono ${mutedText} mt-2 uppercase`}>Comprehensive Node Management Interface</p>
@@ -158,7 +148,7 @@ const App: React.FC = () => {
                     placeholder="SEARCH NODES..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className={`w-full border ${borderCol} ${inputBg} py-3 pl-10 pr-4 text-xs font-mono uppercase focus:outline-none focus:border-[#0044FF]`}
+                    className={`w-full border ${borderCol} ${inputBg} py-3 pl-10 pr-4 text-xs font-mono uppercase focus:outline-none focus:border-[#0044FF] placeholder:text-[#444]`}
                   />
                 </div>
                 <div className={`border ${borderCol} ${inputBg} flex items-center px-4`}>
@@ -166,7 +156,7 @@ const App: React.FC = () => {
                   <select 
                     value={sortBy} 
                     onChange={(e) => setSortBy(e.target.value as any)}
-                    className="bg-transparent text-xs font-mono uppercase focus:outline-none px-2 py-3"
+                    className={`bg-transparent text-xs font-mono uppercase focus:outline-none px-2 py-3 ${themeText}`}
                   >
                     <option value="name">Name</option>
                     <option value="tokens">Usage</option>
@@ -181,7 +171,6 @@ const App: React.FC = () => {
                 <AgentCard 
                   key={agent.id} 
                   agent={agent} 
-                  isNightMode={isNightMode}
                   onClick={handleAgentClick} 
                   onAction={(status) => updateAgentStatus(agent.id, status)}
                 />
@@ -206,7 +195,7 @@ const App: React.FC = () => {
                 </div>
               </div>
               <div className="flex-1">
-                <LiveFeed isNightMode={isNightMode} />
+                <LiveFeed />
               </div>
             </div>
           </div>
@@ -215,7 +204,7 @@ const App: React.FC = () => {
       case 'intelligence':
         return (
           <div className="max-w-4xl space-y-8 animate-in fade-in duration-300">
-            <header className={`border-b-4 ${isNightMode ? 'border-white' : 'border-[#1A1A1A]'} pb-4`}>
+            <header className={`border-b-4 border-white pb-4`}>
               <h2 className="text-5xl font-black tracking-tighter uppercase">Gemini Deep Think</h2>
               <p className={`text-sm ${mutedText} mt-2 font-mono uppercase`}>System-wide reasoning core | Gemini 3 Pro Enabled</p>
             </header>
@@ -229,7 +218,7 @@ const App: React.FC = () => {
                 value={thinkQuery}
                 onChange={(e) => setThinkQuery(e.target.value)}
                 placeholder="Enter complex instruction or problem for the swarm..."
-                className={`w-full h-40 ${isNightMode ? 'bg-[#0A0A0A]' : 'bg-[#F4F4F0]'} border ${borderCol} p-6 text-lg font-medium focus:outline-none focus:border-[#0044FF] placeholder:text-[#666666]`}
+                className={`w-full h-40 bg-[#0A0A0A] border ${borderCol} p-6 text-lg font-medium focus:outline-none focus:border-[#0044FF] placeholder:text-[#444] ${themeText}`}
                />
                <button 
                 onClick={handleThink}
@@ -246,7 +235,7 @@ const App: React.FC = () => {
                    <span className="text-[10px] font-bold text-[#FF4400] uppercase tracking-widest">Inference Result</span>
                    <span className={`text-[10px] font-mono ${mutedText}`}>TOKEN_COST: 1,422</span>
                  </div>
-                 <div className="prose prose-sm font-mono whitespace-pre-wrap leading-relaxed dark:text-gray-300">
+                 <div className="prose prose-sm font-mono whitespace-pre-wrap leading-relaxed text-[#CCCCCC]">
                    {thinkResult}
                  </div>
               </div>
@@ -257,15 +246,15 @@ const App: React.FC = () => {
       case 'security':
         return (
           <div className="animate-in fade-in duration-300">
-            <div className={`p-20 border-4 ${isNightMode ? 'border-[#FF4400]' : 'border-[#1A1A1A]'} ${surfaceBg} flex flex-col items-center justify-center text-center`}>
+            <div className={`p-20 border-4 border-[#FF4400] ${surfaceBg} flex flex-col items-center justify-center text-center`}>
               <Shield size={64} className="text-[#FF4400] mb-8" />
               <h2 className="text-6xl font-black tracking-tighter uppercase mb-6">Security Protocol Restricted</h2>
               <p className={`max-w-xl text-lg ${mutedText} font-medium mb-12`}>
                 This interface handles encrypted key management and firewall overrides. Access requires a physical hardware security token and Level 4 biometric verification.
               </p>
               <div className="flex gap-4">
-                <button className="bg-[#1A1A1A] dark:bg-white dark:text-black text-white px-8 py-4 font-black uppercase tracking-widest text-xs">Request Access</button>
-                <button className={`border-2 ${borderCol} px-8 py-4 font-black uppercase tracking-widest text-xs`}>View Logs</button>
+                <button className="bg-white text-black px-8 py-4 font-black uppercase tracking-widest text-xs hover:bg-gray-200 transition-colors">Request Access</button>
+                <button className={`border-2 ${borderCol} px-8 py-4 font-black uppercase tracking-widest text-xs hover:bg-[#333] transition-colors`}>View Logs</button>
               </div>
             </div>
           </div>
@@ -275,31 +264,15 @@ const App: React.FC = () => {
         return (
           <div className="max-w-2xl space-y-12 animate-in fade-in duration-300">
             <div>
-              <h2 className="text-5xl font-black tracking-tighter uppercase border-b-4 border-[#1A1A1A] dark:border-white pb-4 mb-8">Hub Configuration</h2>
+              <h2 className="text-5xl font-black tracking-tighter uppercase border-b-4 border-white pb-4 mb-8">Hub Configuration</h2>
               
               <div className="space-y-8">
-                <section>
-                  <h4 className={`text-[10px] font-bold tracking-widest ${mutedText} uppercase mb-4`}>Appearance</h4>
-                  <div className={`p-6 border ${borderCol} ${surfaceBg} flex justify-between items-center`}>
-                    <div>
-                      <span className="block font-bold text-sm uppercase">Night Mode Override</span>
-                      <span className={`text-xs ${mutedText}`}>Forces high-contrast dark aesthetic across all modules.</span>
-                    </div>
-                    <button 
-                      onClick={toggleNightMode}
-                      className={`w-14 h-8 flex items-center p-1 transition-colors ${isNightMode ? 'bg-[#0044FF]' : 'bg-[#E5E5E5]'}`}
-                    >
-                      <div className={`w-6 h-6 bg-white transition-transform ${isNightMode ? 'translate-x-6' : 'translate-x-0'}`}></div>
-                    </button>
-                  </div>
-                </section>
-
                 <section>
                   <h4 className={`text-[10px] font-bold tracking-widest ${mutedText} uppercase mb-4`}>System Parameters</h4>
                   <div className="space-y-4">
                     <div className={`p-6 border ${borderCol} ${surfaceBg}`}>
                       <span className="block font-bold text-sm uppercase mb-1">Compute Threshold</span>
-                      <input type="range" className="w-full h-1 bg-[#E5E5E5] accent-[#0044FF]" />
+                      <input type="range" className="w-full h-1 bg-[#333] accent-[#0044FF]" />
                       <div className="flex justify-between mt-2 text-[10px] font-mono">
                         <span>ECO_MODE</span>
                         <span>MAX_PERFORMANCE</span>
@@ -307,7 +280,7 @@ const App: React.FC = () => {
                     </div>
                     <div className={`p-6 border ${borderCol} ${surfaceBg}`}>
                       <span className="block font-bold text-sm uppercase mb-1">Auto-Scaling Strategy</span>
-                      <select className={`w-full bg-transparent text-xs font-mono uppercase focus:outline-none py-2 border-b ${borderCol}`}>
+                      <select className={`w-full bg-transparent text-xs font-mono uppercase focus:outline-none py-2 border-b ${borderCol} ${themeText}`}>
                         <option>Latency Optimized</option>
                         <option>Cost Optimized</option>
                         <option>Redundant Swarm</option>
@@ -316,7 +289,7 @@ const App: React.FC = () => {
                   </div>
                 </section>
 
-                <section className="pt-8 border-t border-[#E5E5E533]">
+                <section className="pt-8 border-t border-[#333]">
                   <h4 className={`text-[10px] font-bold tracking-widest ${mutedText} uppercase mb-4`}>Hub Information</h4>
                   <div className="grid grid-cols-2 gap-4 font-mono text-xs">
                     <div className={mutedText}>NODE_VERSION</div>
@@ -342,8 +315,6 @@ const App: React.FC = () => {
       <Sidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
-        isNightMode={isNightMode}
-        toggleNightMode={toggleNightMode}
       />
       
       <main className="ml-[80px] flex-1 p-10 max-w-[1600px] mx-auto w-full overflow-hidden">
@@ -354,7 +325,7 @@ const App: React.FC = () => {
               <span className="w-1.5 h-1.5 bg-[#FF4400]"></span>
               SYSTEM STATUS: NOMINAL
             </div>
-            <h1 className="text-7xl font-black tracking-tighter leading-[0.8] uppercase cursor-pointer" onClick={() => setActiveTab('dashboard')}>
+            <h1 className="text-7xl font-black tracking-tighter leading-[0.8] uppercase cursor-pointer hover:text-white transition-colors" onClick={() => setActiveTab('dashboard')}>
               AgentCommand
             </h1>
           </div>
@@ -370,7 +341,6 @@ const App: React.FC = () => {
       <AgentDetailsPanel 
         agent={selectedAgent} 
         isOpen={isPanelOpen} 
-        isNightMode={isNightMode}
         onClose={() => setIsPanelOpen(false)} 
         onStatusChange={(status) => selectedAgent && updateAgentStatus(selectedAgent.id, status)}
       />
