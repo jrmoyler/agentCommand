@@ -10,6 +10,7 @@ export interface Agent {
   uptime: string;
   specialization: string;
   description: string;
+  tags: string[];
 }
 
 export interface LogEntry {

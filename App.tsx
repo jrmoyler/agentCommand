@@ -8,7 +8,7 @@ import AgentDetailsPanel from './components/AgentDetailsPanel';
 import { MOCK_AGENTS } from './constants';
 import { Agent, AgentStatus } from './types';
 import { getDeepThinkingInsights } from './services/geminiService';
-import { Brain, Info, Search as SearchIcon, Filter, ArrowUpDown, Terminal, Shield, Settings as SettingsIcon } from 'lucide-react';
+import { Brain, Info, Search as SearchIcon, Filter, ArrowUpDown, Terminal, Shield, Settings as SettingsIcon, Play, Square, RotateCcw } from 'lucide-react';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -17,6 +17,9 @@ const App: React.FC = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'tokens' | 'uptime'>('name');
+  
+  // Bulk selection state
+  const [selectedAgentIds, setSelectedAgentIds] = useState<string[]>([]);
   
   // Gemini Intelligence state
   const [thinkQuery, setThinkQuery] = useState('');
@@ -32,17 +35,30 @@ const App: React.FC = () => {
     agents.find(a => a.id === selectedAgentId) || null
   , [agents, selectedAgentId]);
 
+  // Helper to parse "XXh YYm" string into minutes for sorting
+  const parseUptimeToMinutes = (uptime: string): number => {
+    const parts = uptime.split(' ');
+    let minutes = 0;
+    parts.forEach(part => {
+      if (part.includes('h')) minutes += parseInt(part) * 60;
+      if (part.includes('m')) minutes += parseInt(part);
+    });
+    return minutes;
+  };
+
   const sortedAndFilteredAgents = useMemo(() => {
+    const term = searchTerm.toLowerCase();
     let filtered = agents.filter(agent => 
-      agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      agent.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      agent.specialization.toLowerCase().includes(searchTerm.toLowerCase())
+      agent.name.toLowerCase().includes(term) ||
+      agent.role.toLowerCase().includes(term) ||
+      agent.specialization.toLowerCase().includes(term) ||
+      agent.tags.some(tag => tag.toLowerCase().includes(term))
     );
 
     return filtered.sort((a, b) => {
       if (sortBy === 'name') return a.name.localeCompare(b.name);
       if (sortBy === 'tokens') return b.tokensUsed - a.tokensUsed;
-      if (sortBy === 'uptime') return b.uptime.localeCompare(a.uptime);
+      if (sortBy === 'uptime') return parseUptimeToMinutes(b.uptime) - parseUptimeToMinutes(a.uptime);
       return 0;
     });
   }, [agents, searchTerm, sortBy]);
@@ -54,6 +70,36 @@ const App: React.FC = () => {
 
   const updateAgentStatus = (id: string, status: AgentStatus) => {
     setAgents(prev => prev.map(a => a.id === id ? { ...a, status } : a));
+  };
+
+  const resetAgent = (id: string) => {
+    setAgents(prev => prev.map(a => a.id === id ? { ...a, status: 'idle', tokensUsed: 0, uptime: '0h 00m' } : a));
+  };
+
+  const updateAgentTags = (id: string, newTags: string[]) => {
+      setAgents(prev => prev.map(a => a.id === id ? { ...a, tags: newTags } : a));
+  }
+
+  // Bulk Actions
+  const toggleAgentSelection = (id: string) => {
+      setSelectedAgentIds(prev => 
+          prev.includes(id) ? prev.filter(aid => aid !== id) : [...prev, id]
+      );
+  };
+
+  const handleBulkStart = () => {
+      setAgents(prev => prev.map(a => selectedAgentIds.includes(a.id) ? { ...a, status: 'busy' } : a));
+      setSelectedAgentIds([]);
+  };
+
+  const handleBulkStop = () => {
+      setAgents(prev => prev.map(a => selectedAgentIds.includes(a.id) ? { ...a, status: 'idle' } : a));
+      setSelectedAgentIds([]);
+  };
+
+  const handleBulkReset = () => {
+      setAgents(prev => prev.map(a => selectedAgentIds.includes(a.id) ? { ...a, status: 'idle', tokensUsed: 0, uptime: '0h 00m' } : a));
+      setSelectedAgentIds([]);
   };
 
   const handleThink = async () => {
@@ -124,6 +170,10 @@ const App: React.FC = () => {
                     agent={agent} 
                     onClick={handleAgentClick} 
                     onAction={(status) => updateAgentStatus(agent.id, status)}
+                    onReset={() => resetAgent(agent.id)}
+                    isSelected={selectedAgentIds.includes(agent.id)}
+                    onToggleSelect={toggleAgentSelection}
+                    selectionMode={selectedAgentIds.length > 0}
                   />
                 ))}
               </div>
@@ -145,7 +195,7 @@ const App: React.FC = () => {
                   <SearchIcon className={`absolute left-3 top-1/2 -translate-y-1/2 ${mutedText}`} size={16} />
                   <input 
                     type="text" 
-                    placeholder="SEARCH NODES..."
+                    placeholder="SEARCH (NAME, ROLE, TAGS)..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className={`w-full border ${borderCol} ${inputBg} py-3 pl-10 pr-4 text-xs font-mono uppercase focus:outline-none focus:border-[#0044FF] placeholder:text-[#444]`}
@@ -159,12 +209,36 @@ const App: React.FC = () => {
                     className={`bg-transparent text-xs font-mono uppercase focus:outline-none px-2 py-3 ${themeText}`}
                   >
                     <option value="name">Name</option>
-                    <option value="tokens">Usage</option>
-                    <option value="uptime">Uptime</option>
+                    <option value="tokens">Usage (High-Low)</option>
+                    <option value="uptime">Uptime (High-Low)</option>
                   </select>
                 </div>
               </div>
             </div>
+
+            {/* Bulk Actions Bar */}
+            {selectedAgentIds.length > 0 && (
+                <div className="bg-[#121210] border border-[#0044FF] p-4 flex justify-between items-center animate-in slide-in-from-top-2 fade-in">
+                    <div className="flex items-center gap-4">
+                        <span className="bg-[#0044FF] text-white text-[10px] font-bold px-2 py-1 uppercase">{selectedAgentIds.length} SELECTED</span>
+                        <span className="text-xs text-[#888] font-mono hidden md:inline-block">Apply actions to multiple agents simultaneously.</span>
+                    </div>
+                    <div className="flex gap-2">
+                        <button onClick={handleBulkStart} className="flex items-center gap-2 bg-[#222] hover:bg-[#333] text-white px-4 py-2 text-[10px] font-bold uppercase tracking-wider transition-colors">
+                            <Play size={12} /> Start All
+                        </button>
+                        <button onClick={handleBulkStop} className="flex items-center gap-2 bg-[#222] hover:bg-[#333] text-white px-4 py-2 text-[10px] font-bold uppercase tracking-wider transition-colors">
+                            <Square size={12} /> Stop All
+                        </button>
+                        <button onClick={handleBulkReset} className="flex items-center gap-2 bg-[#222] hover:bg-[#333] text-white px-4 py-2 text-[10px] font-bold uppercase tracking-wider transition-colors">
+                            <RotateCcw size={12} /> Reset All
+                        </button>
+                        <button onClick={() => setSelectedAgentIds([])} className="ml-2 text-[10px] text-[#666] hover:text-white uppercase font-bold px-2">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
               {sortedAndFilteredAgents.map((agent) => (
@@ -173,6 +247,10 @@ const App: React.FC = () => {
                   agent={agent} 
                   onClick={handleAgentClick} 
                   onAction={(status) => updateAgentStatus(agent.id, status)}
+                  onReset={() => resetAgent(agent.id)}
+                  isSelected={selectedAgentIds.includes(agent.id)}
+                  onToggleSelect={toggleAgentSelection}
+                  selectionMode={selectedAgentIds.length > 0}
                 />
               ))}
             </div>
@@ -325,9 +403,47 @@ const App: React.FC = () => {
               <span className="w-1.5 h-1.5 bg-[#FF4400]"></span>
               SYSTEM STATUS: NOMINAL
             </div>
-            <h1 className="text-7xl font-black tracking-tighter leading-[0.8] uppercase cursor-pointer hover:text-white transition-colors" onClick={() => setActiveTab('dashboard')}>
-              AgentCommand
-            </h1>
+            
+            {/* Custom SVG Header Logo */}
+            <svg 
+              viewBox="0 0 420 60" 
+              className="h-16 w-auto cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={() => setActiveTab('dashboard')}
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient id="textGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#FFFFFF" />
+                  <stop offset="100%" stopColor="#CCCCCC" />
+                </linearGradient>
+              </defs>
+
+              {/* Text */}
+              <text x="0" y="38" fontFamily="'Inter', sans-serif" fontWeight="900" fontSize="42" fill="url(#textGrad)" letterSpacing="-1">
+                AGENT COMMAND
+              </text>
+
+              {/* Graphic Line Group */}
+              <g transform="translate(2, 48)">
+                {/* Left Segment */}
+                <rect x="0" y="3" width="60" height="2" fill="#0044FF" />
+                
+                {/* Left Decoration */}
+                <rect x="65" y="0" width="6" height="6" stroke="#0044FF" strokeWidth="1.5" fill="none" />
+                <rect x="76" y="0" width="6" height="6" fill="#0044FF" />
+                <path d="M88 0 L96 3 L88 6 Z" fill="#FF4400" />
+                
+                {/* Middle Line */}
+                <rect x="102" y="3" width="180" height="2" fill="#333333" />
+                
+                {/* Right Decoration */}
+                <rect x="288" y="0" width="6" height="6" fill="#0044FF" />
+                <rect x="299" y="0" width="6" height="6" stroke="#0044FF" strokeWidth="1.5" fill="none" />
+                
+                {/* Right Segment */}
+                <rect x="310" y="3" width="110" height="2" fill="#0044FF" />
+              </g>
+            </svg>
           </div>
           <div className="text-right hidden md:block">
             <div className={`text-[10px] font-bold tracking-widest mb-1 ${mutedText}`}>ORCHESTRATION HUB</div>
@@ -343,6 +459,8 @@ const App: React.FC = () => {
         isOpen={isPanelOpen} 
         onClose={() => setIsPanelOpen(false)} 
         onStatusChange={(status) => selectedAgent && updateAgentStatus(selectedAgent.id, status)}
+        onReset={() => selectedAgent && resetAgent(selectedAgent.id)}
+        onUpdateTags={(tags) => selectedAgent && updateAgentTags(selectedAgent.id, tags)}
       />
 
       <style>{`
@@ -373,6 +491,16 @@ const App: React.FC = () => {
 
         .slide-in-from-bottom-2 {
           animation-name: fadeIn, slideInFromBottom;
+        }
+
+        @keyframes slideInFromTop {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .slide-in-from-top-2 {
+            animation-name: slideInFromTop;
+            animation-duration: 300ms;
         }
       `}</style>
     </div>
