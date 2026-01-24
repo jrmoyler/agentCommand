@@ -37,7 +37,7 @@ const SwarmHealth: React.FC = () => {
   const stats = [
     { label: 'ACTIVE AGENTS', value: `${activeCount}/15`, color: textColor },
     { label: 'TOKENS USED', value: `${(tokens / 1000000).toFixed(3)}M`, color: '#0044FF' },
-    { label: 'ERROR RATE', value: `${errorRate.toFixed(4)}%`, color: '#FF4400' },
+    { label: 'ERROR RATE', value: `${(errorRate * 100).toFixed(2)}%`, color: '#FF4400' },
     { label: 'THROUGHPUT', value: '1.2GB/s', color: textColor },
   ];
 
