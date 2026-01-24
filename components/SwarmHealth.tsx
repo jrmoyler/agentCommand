@@ -31,7 +31,7 @@ const SwarmHealth: React.FC = () => {
 
   const surfaceBg = 'bg-[#121210]';
   const borderCol = 'border-[#333333]';
-  const textColor = 'text-[#E5E5E5]';
+  const textColor = '#E5E5E5';
   const mutedText = 'text-[#666666]';
 
   const stats = [
